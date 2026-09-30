@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 560" width="1200" height="560"
+     role="img" aria-label="发布到 GitHub：中文当主 README，图片跟着语言走，被墙也能推">
+  <rect width="1200" height="560" fill="#FBF8F4"/>
+
+  <!-- 标题 -->
+  <text x="52" y="58" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="30" font-weight="700" fill="#2C3A42">一条命令，发到 GitHub</text>
+  <text x="52" y="92" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="16" fill="#6B7B85">中文当主语言 · 图片跟着语言走 · 被墙也能推</text>
+
+  <!-- 左边：README.md 中文 -->
+  <g transform="translate(52,132)">
+    <rect width="520" height="212" rx="13" fill="#FFFFFF" stroke="#E3D9CE" stroke-width="1.6"/>
+    <text x="26" y="36" font-family="ui-monospace,Menlo,monospace"
+          font-size="15" font-weight="600" fill="#2C3A42">README.md</text>
+    <rect x="26" y="48" width="70" height="22" rx="6" fill="#EAF4EE"/>
+    <text x="61" y="63" text-anchor="middle" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="12.5" font-weight="600" fill="#2F6B4F">中文主语言</text>
+
+    <text x="26" y="100" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="14" fill="#5C6B75">GitHub 打开就是这个，中文用户零点击</text>
+
+    <rect x="26" y="120" width="468" height="68" rx="9" fill="#FBF8F4" stroke="#EDE3D9" stroke-width="1.2"/>
+    <text x="44" y="146" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#8A6A4F">![总览](assets/hero.svg)</text>
+    <text x="44" y="172" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#4A7A62">↑ 引用中文图（无后缀）</text>
+  </g>
+
+  <!-- 右边：README.en.md 英文 -->
+  <g transform="translate(628,132)">
+    <rect width="520" height="212" rx="13" fill="#FFFFFF" stroke="#E3D9CE" stroke-width="1.6"/>
+    <text x="26" y="36" font-family="ui-monospace,Menlo,monospace"
+          font-size="15" font-weight="600" fill="#2C3A42">README.en.md</text>
+    <rect x="26" y="48" width="70" height="22" rx="6" fill="#EAF4EE"/>
+    <text x="61" y="63" text-anchor="middle" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="12.5" font-weight="600" fill="#2F6B4F">英文</text>
+
+    <text x="26" y="100" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="14" fill="#5C6B75">顶部互链，英文读者一键切过来</text>
+
+    <rect x="26" y="120" width="468" height="68" rx="9" fill="#FBF8F4" stroke="#EDE3D9" stroke-width="1.2"/>
+    <text x="44" y="146" font-family="ui-monospace,Menlo,monospace" font-size="13" fill="#8A6A4F">![overview](assets/hero-en.svg)</text>
+    <text x="44" y="172" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#4A7A62">↑ 引用英文图（带 -en）</text>
+  </g>
+
+  <!-- 箭头：语言配对 -->
+  <path d="M436 232 L472 232" stroke="#C08A6A" stroke-width="2.4" opacity="0"/>
+  <text x="52" y="378" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="15.5" font-weight="700" fill="#2C3A42">图片必须跟着语言走 —— 中文 README 里不许出现英文图</text>
+  <text x="52" y="402" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+        font-size="14" fill="#6B7B85">推送前自动校验：语言配对、文件存在、SVG 里有没有会渲染成粉色错块的 HTML 实体</text>
+
+  <!-- 底部三格 -->
+  <g transform="translate(52,428)">
+    <rect width="356" height="92" rx="12" fill="#FFFFFF" stroke="#E3D9CE" stroke-width="1.5"/>
+    <text x="24" y="34" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="15" font-weight="700" fill="#2C3A42">① 中文当主语言</text>
+    <text x="24" y="60" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">README.md 直接是中文</text>
+    <text x="24" y="80" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">英文放 README.en.md</text>
+  </g>
+  <g transform="translate(422,428)">
+    <rect width="356" height="92" rx="12" fill="#FFFFFF" stroke="#E3D9CE" stroke-width="1.5"/>
+    <text x="24" y="34" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="15" font-weight="700" fill="#2C3A42">② 图跟语言配对</text>
+    <text x="24" y="60" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">无后缀=中文图，-en=英文图</text>
+    <text x="24" y="80" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">脚本强制查，不靠肉眼</text>
+  </g>
+  <g transform="translate(792,428)">
+    <rect width="356" height="92" rx="12" fill="#FFFFFF" stroke="#E3D9CE" stroke-width="1.5"/>
+    <text x="24" y="34" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="15" font-weight="700" fill="#2C3A42">③ 被墙也能推</text>
+    <text x="24" y="60" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">github.com 不通时</text>
+    <text x="24" y="80" font-family="ui-sans-serif,-apple-system,'PingFang SC','Microsoft YaHei',sans-serif"
+          font-size="13" fill="#7C8A94">自动改走 REST API</text>
+  </g>
+</svg>
