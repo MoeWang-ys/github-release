@@ -1,0 +1,6 @@
+preview.html
+__pycache__/
+*.py[cod]
+.DS_Store
+.vscode/
+.idea/
