@@ -26,6 +26,15 @@ XML_LEGAL_ENTITIES = {"amp", "lt", "gt", "quot", "apos"}
 ENTITY_RE = re.compile(r'&([a-zA-Z][a-zA-Z0-9]*);')
 
 
+def strip_code_blocks(text):
+    """剔除 markdown 代码块与行内代码，避免把示例文字误当成图片引用。"""
+    text = re.sub(r'```.*?```', '', text, flags=re.S)      # 围栏代码块
+    text = re.sub(r'~~~.*?~~~', '', text, flags=re.S)      # 波浪号代码块
+    text = re.sub(r'`[^`\n]*`', '', text)                  # 行内代码
+    text = re.sub(r'<!--.*?-->', '', text, flags=re.S)     # 注释
+    return text
+
+
 def check_svg_content(path):
     """查 SVG 里有没有会让 Chrome 报解析错的 HTML 实体。返回问题列表。"""
     issues = []
@@ -80,8 +89,8 @@ def check(root: str, main_lang: str = "zh") -> int:
             continue
 
         want_en = expected_suffix(lang)
-        text = open(os.path.join(root, readme), encoding="utf-8").read()
-        assets = sorted(set(ASSET_RE.findall(text)))
+        raw = open(os.path.join(root, readme), encoding="utf-8").read()
+        assets = sorted(set(ASSET_RE.findall(strip_code_blocks(raw))))
 
         tag = "英文" if lang == "en" else "中文"
         print(f"  {readme}  [{tag}]  应引用{' -en 图' if want_en else ' 无后缀图'}")
