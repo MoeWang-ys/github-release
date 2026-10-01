@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# git 包装脚本 —— 自动决定要不要走代理，不需要手动开关。
+#
+# 背景：`git config http.proxy` 是静态的。代理一关，git 就去连一个不存在的
+# 端口，卡 75 秒然后超时；代理一开又要记得配上。两个方向都得手动。
+#
+# 这个包装每次调用时探测一次代理，临时加上/去掉 git 的代理参数：
+#   代理活着 → 走代理
+#   代理死了 → 直连（并在确实连不上时提示怎么开代理）
+#
+# 探测结果缓存 60 秒，避免每条 git 命令都去探测。
+#
+# 安装在 ~/.local/bin/git（PATH 靠前），不影响 /usr/bin/git。
+
+set -o pipefail
+
+REAL_GIT="/usr/bin/git"
+CACHE="$HOME/.cache/git-proxy-detect"
+CACHE_TTL=60
+
+# ---------- 探测代理 ----------
+
+detect_proxy() {
+    local now cached_at cached_val
+
+    # 读缓存
+    if [ -f "$CACHE" ]; then
+        now=$(date +%s)
+        cached_at=$(sed -n '1p' "$CACHE" 2>/dev/null)
+        cached_val=$(sed -n '2p' "$CACHE" 2>/dev/null)
+        if [ -n "$cached_at" ] && [ $((now - cached_at)) -lt $CACHE_TTL ]; then
+            printf '%s' "$cached_val"
+            return
+        fi
+    fi
+
+    local proxy=""
+
+    # ① 环境变量优先（用户显式设置的就听用户的）
+    if [ -n "${GIT_PROXY:-}" ]; then
+        proxy="$GIT_PROXY"
+    elif [ -n "${HTTPS_PROXY:-}" ]; then
+        proxy="$HTTPS_PROXY"
+    elif [ -n "${https_proxy:-}" ]; then
+        proxy="$https_proxy"
+    else
+        # ② macOS 系统代理设置
+        local host port enabled
+        enabled=$(scutil --proxy 2>/dev/null | awk '/HTTPSEnable/{print $3}')
+        if [ "$enabled" = "1" ]; then
+            host=$(scutil --proxy 2>/dev/null | awk '/HTTPSProxy/{print $3}')
+            port=$(scutil --proxy 2>/dev/null | awk '/HTTPSPort/{print $3}')
+            [ -z "$host" ] && host="127.0.0.1"
+        else
+            enabled=$(scutil --proxy 2>/dev/null | awk '/SOCKSEnable/{print $3}')
+            if [ "$enabled" = "1" ]; then
+                host=$(scutil --proxy 2>/dev/null | awk '/SOCKSProxy/{print $3}')
+                port=$(scutil --proxy 2>/dev/null | awk '/SOCKSPort/{print $3}')
+                # git 需要 socks5h:// 形式
+                [ -n "$port" ] && proxy="socks5h://${host:-127.0.0.1}:$port"
+            fi
+        fi
+
+        # 系统代理开着的话，构造 http:// 形式
+        if [ -z "$proxy" ] && [ -n "$port" ]; then
+            # 检查端口真的在监听，否则代理是"配了但没开"
+            if nc -z -G 1 "$host" "$port" 2>/dev/null; then
+                proxy="http://${host}:${port}"
+            fi
+        fi
+    fi
+
+    # 环境变量给的代理也要验证活没活
+    if [ -n "$proxy" ]; then
+        local hp="${proxy#*://}"      # 去掉 scheme
+        local h="${hp%%:*}"           # host
+        local p="${hp##*:}"           # port
+        p="${p%%/*}"                  # 去掉可能的 path
+        if ! nc -z -G 1 "$h" "$p" 2>/dev/null; then
+            proxy=""                  # 代理配了但没开着 → 当没有
+        fi
+    fi
+
+    # 写缓存
+    mkdir -p "$(dirname "$CACHE")" 2>/dev/null
+    printf '%s\n%s\n' "$(date +%s)" "$proxy" > "$CACHE" 2>/dev/null
+
+    printf '%s' "$proxy"
+}
+
+# ---------- 判断这次要不要用代理 ----------
+
+needs_proxy() {
+    # 只对联网的 git 子命令加代理，本地操作（status/commit/diff…）不碰
+    case "$1" in
+        push|pull|fetch|clone|ls-remote|remote|submodule|archive)
+            return 0 ;;
+        *)
+            return 1 ;;
+    esac
+}
+
+# ---------- 主流程 ----------
+
+# 找到子命令（跳过 -C / -c 这类带值的全局选项）
+subcmd=""
+skip_next=0
+for arg in "$@"; do
+    if [ $skip_next -eq 1 ]; then skip_next=0; continue; fi
+    case "$arg" in
+        -C|-c|--git-dir|--work-tree|--namespace|--exec-path)
+            skip_next=1; continue ;;
+        -*)  continue ;;
+        *)   subcmd="$arg"; break ;;
+    esac
+done
+
+PROXY=""
+if needs_proxy "$subcmd"; then
+    PROXY=$(detect_proxy)
+fi
+
+if [ -n "$PROXY" ]; then
+    exec "$REAL_GIT" -c "http.proxy=$PROXY" -c "https.proxy=$PROXY" "$@"
+else
+    # 不带任何代理参数。同时显式清掉可能残留在全局配置里的代理，
+    # 否则代理关了之后 git 会去连一个死端口，卡 75 秒超时。
+    if [ -n "$subcmd" ] && needs_proxy "$subcmd"; then
+        exec "$REAL_GIT" -c "http.proxy=" -c "https.proxy=" "$@"
+    else
+        exec "$REAL_GIT" "$@"
+    fi
+fi

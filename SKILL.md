@@ -148,12 +148,56 @@ git push -u origin main
 
 ### 如果卡在 github.com:443
 
-国内网络常见：**`github.com:443` 不通，但 `api.github.com` 通**。先诊断，别瞎重试：
+**先分清是三种情况里的哪一种，别瞎重试：**
+
+| 症状 | 原因 | 做法 |
+|---|---|---|
+| `curl` 通、`git` 卡 75 秒超时 | **git 不读系统代理**（macOS 常见） | 配 git 代理，或装自适应包装 |
+| 两者都不通 | 真被墙 | 走下面 REST API |
+| 两者都通、但 push 报认证失败 | token 问题 | 检查凭证 |
+
+**先诊断：**
 
 ```bash
 curl -s -o /dev/null -w "github.com: %{http_code}\n" --max-time 10 https://github.com
 curl -s -o /dev/null -w "api.github.com: %{http_code}\n" --max-time 10 https://api.github.com
+scutil --proxy | grep -iE "HTTPEnable|HTTPPort"    # macOS 系统代理
+nc -z -G 1 127.0.0.1 <代理端口> && echo "代理活着"
 ```
+
+**关键：macOS 上 `curl` 自动读系统代理，但 `git` 不读。**
+所以会出现"curl 通、git 超时"这种怪现象 —— 不是墙，是 git 缺代理配置。
+
+### 方案一：给 git 配上代理（最直接）
+
+```bash
+git config --global http.proxy http://127.0.0.1:7897
+git config --global https.proxy http://127.0.0.1:7897
+```
+
+> ⚠️ 但这是静态配置。**代理一关，git 会去连一个死端口，卡 75 秒超时。**
+> 要兼顾两头，用方案二。
+
+### 方案二：自适应包装脚本（推荐）
+
+在 PATH 靠前的目录（如 `~/.local/bin/git`）放一个包装脚本，
+每次调用时探测代理：**活着就走，死了就直连，缓存 60 秒**。
+
+用户什么都不用管 —— 不用手动开关，不会卡 75 秒。
+
+模板见 `scripts/git-adaptive-proxy`，安装：
+
+```bash
+cp scripts/git-adaptive-proxy ~/.local/bin/git
+chmod +x ~/.local/bin/git
+# 清掉静态配置，改由脚本动态管理
+git config --global --unset http.proxy
+git config --global --unset https.proxy
+# 确认 PATH 里目标目录在 /usr/bin 之前
+which git    # 应输出 ~/.local/bin/git
+```
+
+### 方案三：REST API（确实被墙时）
 
 `github.com` 返回 `000`（超时）而 `api` 返回 `200` → **走 REST API 推送**：
 
