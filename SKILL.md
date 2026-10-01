@@ -193,6 +193,32 @@ curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
 
 ### 凭证
 
+**先检查有没有现成的：**
+
+```bash
+echo $GITHUB_TOKEN                                  # 环境变量
+gh auth status 2>/dev/null && echo "gh 已登录"        # gh CLI
+printf 'protocol=https\nhost=github.com\n\n' | git credential-osxkeychain get 2>/dev/null | grep -q password && echo "钥匙串里有"
+```
+
+**都没有的话，让用户去建一个：**
+
+1. 打开 https://github.com/settings/tokens/new
+2. 勾 **`repo`**（够了，别多勾）
+3. 设个过期时间
+4. 把 token 贴给 agent
+
+> ⚠️ **别让 token 留在对话或文件里。** 用一次就提醒用户去
+> https://github.com/settings/tokens 撤销。
+> token 权限超出所需时（比如还带 `write:packages`）主动提醒。
+
+**如果用户已经删掉 token：**
+
+先试 `git push`（SSH 或已配好的凭证可能能走），不行再让用户重新建一个。
+**不要自己去找、去猜 token。**
+
+### 其他规矩
+
 - **别把 token 写进 remote URL 后不管** —— 推完立刻清掉：
   ```bash
   git remote set-url origin https://github.com/<user>/<repo>.git
