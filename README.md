@@ -71,7 +71,7 @@ api.github.com: 200    ← 通
 - `git push` 推不上去，需要绕路
 - 想统一团队的 README 风格
 
-**造图不归它管** —— 那交给 [`svg-infographic`](https://github.com/MoeWang-ys/svg-infographic)。
+**造图不归它管** —— 那交给 [`svg-infographic`](https://github.com/MoeWangG/svg-infographic)。
 
 ## 怎么装
 

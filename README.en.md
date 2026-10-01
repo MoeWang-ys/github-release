@@ -71,7 +71,7 @@ The checker also looks for HTML entities (like `&rarr;`) inside SVGs. **SVG is X
 - `git push` won't go through and you need a way around
 - Standardising README style across a team
 
-**It doesn't draw diagrams** — that's [`svg-infographic`](https://github.com/MoeWang-ys/svg-infographic)'s job.
+**It doesn't draw diagrams** — that's [`svg-infographic`](https://github.com/MoeWangG/svg-infographic)'s job.
 
 ## Install
 
